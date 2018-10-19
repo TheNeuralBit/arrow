@@ -20,7 +20,6 @@ const {
     targetDir, observableFromStreams
 } = require('./util');
 
-const del = require('del');
 const gulp = require('gulp');
 const path = require('path');
 const { promisify } = require('util');
@@ -55,10 +54,10 @@ const arrowTSTask = ((cache) => memoizeTask(cache, async function copyTS(target,
     const out = targetDir(target, format);
     await exec(`mkdirp ${out}`);
     await exec(`shx cp -r src/* ${out}`);
-    await del(`${out}/**/*.js`);
+    await exec(`shx rm -r ${out}/**/*.js`);
 }))({});
-  
-  
+
+
 module.exports = arrowTask;
 module.exports.arrowTask = arrowTask;
 module.exports.arrowTSTask = arrowTSTask;

@@ -15,14 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const del = require('del');
 const path = require('path');
 const { argv } = require('./argv');
 const { promisify } = require('util');
 const glob = promisify(require('glob'));
 const stat = promisify(require('fs').stat);
 const mkdirp = promisify(require('mkdirp'));
-const rimraf = promisify(require('rimraf'));
 const child_process = require(`child_process`);
 const { memoizeTask } = require('./memoize-task');
 const readFile = promisify(require('fs').readFile);
@@ -80,12 +78,7 @@ const javaFilesDir = path.join(testFilesDir, 'java');
 const jsonFilesDir = path.join(testFilesDir, 'json');
 
 async function cleanTestData() {
-    return await del([
-        `${cppFilesDir}/**`,
-        `${javaFilesDir}/**`,
-        `${jsonFilesDir}/**`,
-        `${snapshotsDir}/**`
-    ]);
+    return await exec(`shx rm -r ${cppFilesDir}/** ${javaFilesDir}/** ${jsonFilesDir}/** ${snapshotsDir}/**`);
 }
 
 async function createTestJSON() {
@@ -135,7 +128,7 @@ async function createTestData() {
     }
 
     async function generateCPPFile(jsonPath, filePath) {
-        await rimraf(filePath);
+        await exec(`shx rm -r ${filePath}`);
         return await exec(
             `${CPP_JSON_TO_ARROW} ${
             `--integration --mode=JSON_TO_ARROW`} ${
@@ -143,17 +136,17 @@ async function createTestData() {
             { maxBuffer: Math.pow(2, 53) - 1 }
         );
     }
-    
+
     async function generateCPPStream(filePath, streamPath) {
-        await rimraf(streamPath);
+        await exec(`shx rm -f ${streamPath}`);
         return await exec(
             `${CPP_FILE_TO_STREAM} ${filePath} > ${streamPath}`,
             { maxBuffer: Math.pow(2, 53) - 1 }
         );
     }
-    
+
     async function generateJavaFile(jsonPath, filePath) {
-        await rimraf(filePath);
+        await exec(`shx rm -f ${filePath}`);
         return await exec(
             `java -cp ${JAVA_TOOLS_JAR} ${
             `org.apache.arrow.tools.Integration -c JSON_TO_ARROW`} ${
@@ -161,9 +154,9 @@ async function createTestData() {
             { maxBuffer: Math.pow(2, 53) - 1 }
         );
     }
-    
+
     async function generateJavaStream(filePath, streamPath) {
-        await rimraf(streamPath);
+        await exec(`shx rm -f ${streamPath}`);
         return await exec(
             `java -cp ${JAVA_TOOLS_JAR} ${
             `org.apache.arrow.tools.FileToStream`} ${filePath} ${streamPath}`,

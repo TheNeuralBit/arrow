@@ -15,7 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const del = require('del');
+const { promisify } = require('util');
+const exec = promisify(require('child_process').exec);
 const gulp = require('gulp');
 const path = require('path');
 const { Observable } = require('rxjs');
@@ -78,14 +79,13 @@ gulp.task(`build:${npmPkgName}`,
 function gulpConcurrent(tasks) {
     return () => Observable.bindCallback((tasks, cb) => gulp.parallel(tasks)(cb))(tasks);
 }
-  
+
 const buildConcurrent = (tasks) => () =>
     gulpConcurrent(tasks)()
         .concat(Observable
             .defer(() => Observable
             .merge(...knownTargets.map((target) =>
-                del(`${targetDir(target, `cls`)}/**`)))));
-  
+                exec(`rm -rf ${targetDir(target, `cls`)}/*`)))));
 gulp.task(`clean:testdata`, cleanTestData);
 gulp.task(`create:testdata`, createTestData);
 gulp.task( `test`, gulp.series(getTasks(`test`)));

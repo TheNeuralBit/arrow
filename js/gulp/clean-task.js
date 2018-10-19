@@ -15,14 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const del = require('del');
 const { targetDir } = require('./util');
 const { memoizeTask } = require('./memoize-task');
 const { Observable, ReplaySubject } = require('rxjs');
+const { promisify } = require('util');
+const exec = promisify(require('child_process').exec);
 
 const cleanTask = ((cache) => memoizeTask(cache, function clean(target, format) {
     return Observable
-        .from(del(`${targetDir(target, format)}/**`))
+        .from(exec(`shx rm -rf ${targetDir(target, format)}/**`))
         .catch((e) => Observable.empty())
         .multicast(new ReplaySubject()).refCount();
 }))({});
