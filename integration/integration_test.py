@@ -955,16 +955,15 @@ def get_generated_json_files():
 
 class IntegrationRunner(object):
 
-    def __init__(self, json_files, testers, debug=False):
+    def __init__(self, json_files, producers, consumers, debug=False):
         self.json_files = json_files
-        self.testers = testers
+        self.producers = producers
+        self.consumers = consumers
         self.temp_dir = tempfile.mkdtemp()
         self.debug = debug
 
     def run(self):
-        for producer, consumer in itertools.product(
-                filter(lambda t: t.PRODUCER, self.testers),
-                filter(lambda t: t.CONSUMER, self.testers)):
+        for producer, consumer in itertools.product(self.producers, self.consumers):
             self._compare_implementations(producer, consumer)
 
     def _compare_implementations(self, producer, consumer):
@@ -1193,15 +1192,19 @@ def get_static_json_files():
     return glob.glob(glob_pattern)
 
 
-def run_all_tests(debug=False):
-    testers = [CPPTester(debug=debug),
-               JavaTester(debug=debug),
-               JSTester(debug=debug)]
+def run_all_tests(producers, consumers, debug=False):
+    testers = {'cpp': CPPTester(debug=debug),
+               'java': JavaTester(debug=debug),
+               'js': JSTester(debug=debug)}
+
+    producers = [testers[producer] for producer in producers]
+    consumers = [testers[consumer] for consumer in consumers]
+
     static_json_files = get_static_json_files()
     generated_json_files = get_generated_json_files()
     json_files = static_json_files + generated_json_files
 
-    runner = IntegrationRunner(json_files, testers, debug=debug)
+    runner = IntegrationRunner(json_files, producers, consumers, debug=debug)
     runner.run()
     print('-- All tests passed!')
 
@@ -1226,6 +1229,12 @@ if __name__ == '__main__':
     parser.add_argument('--debug', dest='debug', action='store_true',
                         default=False,
                         help='Run executables in debug mode as relevant')
+    parser.add_argument('--producers', '-p', dest='producers', nargs='+',
+                        default=['cpp', 'java', 'js'],
+                        help='List of implementations to use as producers of Arrow buffers')
+    parser.add_argument('--consumers', '-c', dest='consumers', nargs='+',
+                        default=['cpp', 'java', 'js'],
+                        help='List of implmenetations to use as consumers of Arrow buffers')
     args = parser.parse_args()
     if args.generated_json_path:
         try:
@@ -1235,4 +1244,4 @@ if __name__ == '__main__':
                 raise
         write_js_test_json(args.generated_json_path)
     else:
-        run_all_tests(debug=args.debug)
+        run_all_tests(args.producers, args.consumers, debug=args.debug)
