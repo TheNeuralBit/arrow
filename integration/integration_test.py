@@ -413,6 +413,22 @@ class DecimalColumn(PrimitiveColumn):
         return str(x)
 
 
+class NullType(PrimitiveType):
+    bit_width = 0
+
+    def _get_type(self):
+        return OrderedDict([('name', 'null')])
+
+    @property
+    def numpy_type(self):
+        return 'null'
+
+    def generate_column(self, size, name=None):
+        if name is None:
+            name = self.name
+        return Column(name, size)
+
+
 class BooleanType(PrimitiveType):
     bit_width = 1
 
@@ -776,6 +792,8 @@ def get_field(name, type_, nullable=True):
         return BinaryType(name, nullable=nullable)
     elif type_ == 'utf8':
         return StringType(name, nullable=nullable)
+    elif type_ =='null':
+        return NullType(name)
     elif type_.startswith('fixedsizebinary_'):
         byte_width = int(type_.split('_')[1])
         return FixedSizeBinaryType(name,
@@ -893,6 +911,18 @@ def generate_dictionary_case():
                           dictionaries=[dict1, dict2])
 
 
+def generate_null_column_case():
+    types = ['null', 'utf8']
+
+    fields = []
+
+    for type_ in types:
+        fields.append(get_field(type_, type_, True))
+
+    batch_sizes=[8,9]
+    return _generate_file("null_column", fields, batch_sizes)
+
+
 def get_generated_json_files():
     temp_dir = tempfile.mkdtemp()
 
@@ -905,7 +935,8 @@ def get_generated_json_files():
         generate_decimal_case(),
         generate_datetime_case(),
         generate_nested_case(),
-        generate_dictionary_case()
+        generate_dictionary_case(),
+        generate_null_column_case()
     ]
 
     generated_paths = []
