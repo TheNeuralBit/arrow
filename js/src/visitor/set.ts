@@ -27,6 +27,7 @@ import {
     Float, Float16, Float32, Float64,
     Int, Uint8, Uint16, Uint32, Uint64, Int8, Int16, Int32, Int64,
     Date_, DateDay, DateMillisecond,
+    Duration, DurationSecond, DurationMillisecond, DurationMicrosecond, DurationNanosecond,
     Interval, IntervalDayTime, IntervalYearMonth,
     Time, TimeSecond, TimeMillisecond, TimeMicrosecond, TimeNanosecond,
     Timestamp, TimestampSecond, TimestampMillisecond, TimestampMicrosecond, TimestampNanosecond,
@@ -178,6 +179,25 @@ const setDate = <T extends Date_> (vector: VectorType<T>, index: number, value: 
 };
 
 /** @ignore */
+const setDurationSecond      = <T extends DurationSecond>     ({ values }: VectorType<T>, index: number, value: T['TValue']): void => { values.set(value.subarray(0, 2), 2 * index); };
+/** @ignore */
+const setDurationMillisecond = <T extends DurationMillisecond>({ values }: VectorType<T>, index: number, value: T['TValue']): void => { values.set(value.subarray(0, 2), 2 * index); };
+/** @ignore */
+const setDurationMicrosecond = <T extends DurationMicrosecond>({ values }: VectorType<T>, index: number, value: T['TValue']): void => { values.set(value.subarray(0, 2), 2 * index); };
+/** @ignore */
+const setDurationNanosecond  = <T extends DurationNanosecond> ({ values }: VectorType<T>, index: number, value: T['TValue']): void => { values.set(value.subarray(0, 2), 2 * index); };
+/* istanbul ignore next */
+/** @ignore */
+const setDuration            = <T extends Duration>(vector: VectorType<T>, index: number, value: T['TValue']): void => {
+    switch (vector.type.unit) {
+        case TimeUnit.SECOND:      return      setDurationSecond(vector as VectorType<DurationSecond>, index, value as DurationSecond['TValue']);
+        case TimeUnit.MILLISECOND: return setDurationMillisecond(vector as VectorType<DurationMillisecond>, index, value as DurationMillisecond['TValue']);
+        case TimeUnit.MICROSECOND: return setDurationMicrosecond(vector as VectorType<DurationMicrosecond>, index, value as DurationMicrosecond['TValue']);
+        case TimeUnit.NANOSECOND:  return  setDurationNanosecond(vector as VectorType<DurationNanosecond>, index, value as DurationNanosecond['TValue']);
+    }
+};
+
+/** @ignore */
 const setTimestampSecond      = <T extends TimestampSecond>     ({ values }: VectorType<T>, index: number, value: T['TValue']): void => setEpochMsToMillisecondsLong(values, index * 2, value / 1000);
 /** @ignore */
 const setTimestampMillisecond = <T extends TimestampMillisecond>({ values }: VectorType<T>, index: number, value: T['TValue']): void => setEpochMsToMillisecondsLong(values, index * 2, value);
@@ -324,6 +344,11 @@ SetVisitor.prototype.visitFixedSizeBinary      =      setFixedSizeBinary;
 SetVisitor.prototype.visitDate                 =                 setDate;
 SetVisitor.prototype.visitDateDay              =              setDateDay;
 SetVisitor.prototype.visitDateMillisecond      =      setDateMillisecond;
+SetVisitor.prototype.visitDuration             =             setDuration;
+SetVisitor.prototype.visitDurationSecond       =       setDurationSecond;
+SetVisitor.prototype.visitDurationMillisecond  =  setDurationMillisecond;
+SetVisitor.prototype.visitDurationMicrosecond  =  setDurationMicrosecond;
+SetVisitor.prototype.visitDurationNanosecond   =   setDurationNanosecond;
 SetVisitor.prototype.visitTimestamp            =            setTimestamp;
 SetVisitor.prototype.visitTimestampSecond      =      setTimestampSecond;
 SetVisitor.prototype.visitTimestampMillisecond = setTimestampMillisecond;

@@ -27,7 +27,7 @@ import { selectVectorChildrenArgs } from '../util/args';
 import { BufferRegion, FieldNode } from '../ipc/metadata/message';
 import {
     DataType, Dictionary,
-    Float, Int, Date_, Interval, Time, Timestamp, Union,
+    Float, Int, Date_, Duration, Interval, Time, Timestamp, Union,
     Bool, Null, Utf8, Binary, Decimal, FixedSizeBinary, List, FixedSizeList, Map_, Struct,
 } from '../type';
 
@@ -45,6 +45,7 @@ export interface VectorAssembler extends Visitor {
     visitBinary               <T extends Binary>          (vector: V<T>): this;
     visitFixedSizeBinary      <T extends FixedSizeBinary> (vector: V<T>): this;
     visitDate                 <T extends Date_>           (vector: V<T>): this;
+    visitDuration             <T extends Duration>        (vector: V<T>): this;
     visitTimestamp            <T extends Timestamp>       (vector: V<T>): this;
     visitTime                 <T extends Time>            (vector: V<T>): this;
     visitDecimal              <T extends Decimal>         (vector: V<T>): this;
@@ -181,7 +182,7 @@ function assembleBoolVector<T extends Bool>(this: VectorAssembler, vector: V<T>)
 }
 
 /** @ignore */
-function assembleFlatVector<T extends Int | Float | FixedSizeBinary | Date_ | Timestamp | Time | Decimal | Interval>(this: VectorAssembler, vector: V<T>) {
+function assembleFlatVector<T extends Int | Float | FixedSizeBinary | Date_ | Duration | Timestamp | Time | Decimal | Interval>(this: VectorAssembler, vector: V<T>) {
     return addBuffer.call(this, vector.values.subarray(0, vector.length * vector.stride));
 }
 
@@ -220,6 +221,7 @@ VectorAssembler.prototype.visitUtf8            = assembleFlatListVector;
 VectorAssembler.prototype.visitBinary          = assembleFlatListVector;
 VectorAssembler.prototype.visitFixedSizeBinary =     assembleFlatVector;
 VectorAssembler.prototype.visitDate            =     assembleFlatVector;
+VectorAssembler.prototype.visitDuration        =     assembleFlatVector;
 VectorAssembler.prototype.visitTimestamp       =     assembleFlatVector;
 VectorAssembler.prototype.visitTime            =     assembleFlatVector;
 VectorAssembler.prototype.visitDecimal         =     assembleFlatVector;

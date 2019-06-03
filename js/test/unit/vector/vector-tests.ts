@@ -16,8 +16,8 @@
 // under the License.
 
 import {
-    Int32, Dictionary, DateUnit, util,
-    Data, Vector, Utf8Vector, DateVector, DictionaryVector,
+    Int32, Dictionary, TimeUnit, DateUnit, util,
+    Data, Vector, Utf8Vector, DateVector, DictionaryVector, DurationVector,
 } from '../../Arrow';
 
 describe(`DateVector`, () => {
@@ -90,6 +90,17 @@ describe(`Utf8Vector`, () => {
     basicVectorTests(vector, values, ['abc', '123']);
     describe(`sliced`, () => {
         basicVectorTests(vector.slice(1,3), values.slice(1,3), ['foo', 'abc']);
+    });
+});
+
+describe(`DurationVector`, () => {
+    const values = [100, 200, 256, 100000];
+    const vector = DurationVector.from(values, TimeUnit.MILLISECOND);
+
+    //const expected = values.map(Int64.fromNumber)
+    basicVectorTests(vector, values, [9001,5678]);
+    describe(`sliced`, () => {
+        basicVectorTests(vector.slice(1,3), values.slice(1,3), [100]);
     });
 });
 

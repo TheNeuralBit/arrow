@@ -27,7 +27,7 @@ import { iterateBits, getBit, getBool } from '../util/bit';
 import { selectColumnChildrenArgs } from '../util/args';
 import {
     DataType,
-    Float, Int, Date_, Interval, Time, Timestamp, Union,
+    Float, Int, Date_, Duration, Interval, Time, Timestamp, Union,
     Bool, Null, Utf8, Binary, Decimal, FixedSizeBinary, List, FixedSizeList, Map_, Struct,
 } from '../type';
 
@@ -46,6 +46,7 @@ export interface JSONVectorAssembler extends Visitor {
     visitBinary               <T extends Binary>          (vector: V<T>): { DATA: string[], OFFSET: number[] };
     visitFixedSizeBinary      <T extends FixedSizeBinary> (vector: V<T>): { DATA: string[]  };
     visitDate                 <T extends Date_>           (vector: V<T>): { DATA: number[]  };
+    visitDuration             <T extends Duration>        (vector: V<T>): { DATA: string[]  };
     visitTimestamp            <T extends Timestamp>       (vector: V<T>): { DATA: string[]  };
     visitTime                 <T extends Time>            (vector: V<T>): { DATA: number[]  };
     visitDecimal              <T extends Decimal>         (vector: V<T>): { DATA: string[]  };
@@ -109,6 +110,11 @@ export class JSONVectorAssembler extends Visitor {
                 : [...bigNumsToStrings(vector.values, 2)]
         };
     }
+    public visitDuration<T extends Duration>(vector: V<T>) {
+        return {
+            'DATA': [...bigNumsToStrings(vector.values, 2)]
+        };
+    }
     public visitTimestamp<T extends Timestamp>(vector: V<T>) {
         return { 'DATA': [...bigNumsToStrings(vector.values, 2)] };
     }
@@ -144,6 +150,11 @@ export class JSONVectorAssembler extends Visitor {
     }
     public visitInterval<T extends Interval>(vector: V<T>) {
         return { 'DATA': [...vector.values] };
+    }
+    // TODO: Remove?
+    public visitIntervalDayTime<T extends Interval>(vector: V<T>) {
+        return {
+        }
     }
     public visitFixedSizeList<T extends FixedSizeList>(vector: V<T>) {
         return {

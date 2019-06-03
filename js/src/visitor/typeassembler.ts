@@ -31,6 +31,7 @@ import Bool = Schema_.org.apache.arrow.flatbuf.Bool;
 import Utf8 = Schema_.org.apache.arrow.flatbuf.Utf8;
 import Decimal = Schema_.org.apache.arrow.flatbuf.Decimal;
 import Date = Schema_.org.apache.arrow.flatbuf.Date;
+import Duration = Schema_.org.apache.arrow.flatbuf.Duration;
 import Time = Schema_.org.apache.arrow.flatbuf.Time;
 import Timestamp = Schema_.org.apache.arrow.flatbuf.Timestamp;
 import Interval = Schema_.org.apache.arrow.flatbuf.Interval;
@@ -89,6 +90,11 @@ export class TypeAssembler extends Visitor {
         Date.startDate(b);
         Date.addUnit(b, node.unit);
         return Date.endDate(b);
+    }
+    public visitDuration<T extends type.Duration>(node: T, b: Builder) {
+        Duration.startDuration(b);
+        Duration.addUnit(b, node.unit);
+        return Duration.endDuration(b);
     }
     public visitTime<T extends type.Time>(node: T, b: Builder) {
         Time.startTime(b);

@@ -25,6 +25,7 @@ import {
     Float, Float16, Float32, Float64,
     Int, Uint8, Uint16, Uint32, Uint64, Int8, Int16, Int32, Int64,
     Date_, DateDay, DateMillisecond,
+    Duration, DurationSecond, DurationMillisecond, DurationMicrosecond, DurationNanosecond,
     Interval, IntervalDayTime, IntervalYearMonth,
     Time, TimeSecond, TimeMillisecond, TimeMicrosecond, TimeNanosecond,
     Timestamp, TimestampSecond, TimestampMillisecond, TimestampMicrosecond, TimestampNanosecond,
@@ -57,6 +58,11 @@ export interface TypeComparator extends Visitor {
     visitDate                 <T extends Date_>                (type: T, other?: DataType | null): other is T;
     visitDateDay              <T extends DateDay>              (type: T, other?: DataType | null): other is T;
     visitDateMillisecond      <T extends DateMillisecond>      (type: T, other?: DataType | null): other is T;
+    visitDuration             <T extends Duration>             (type: T, other?: DataType | null): other is T;
+    visitDurationSecond       <T extends DurationSecond>       (type: T, other?: DataType | null): other is T;
+    visitDurationMillisecond  <T extends DurationMillisecond>  (type: T, other?: DataType | null): other is T;
+    visitDurationMicrosecond  <T extends DurationMicrosecond>  (type: T, other?: DataType | null): other is T;
+    visitDurationNanosecond   <T extends DurationNanosecond>   (type: T, other?: DataType | null): other is T;
     visitTimestamp            <T extends Timestamp>            (type: T, other?: DataType | null): other is T;
     visitTimestampSecond      <T extends TimestampSecond>      (type: T, other?: DataType | null): other is T;
     visitTimestampMillisecond <T extends TimestampMillisecond> (type: T, other?: DataType | null): other is T;
@@ -138,6 +144,13 @@ function compareFixedSizeBinary<T extends FixedSizeBinary>(type: T, other?: Data
 }
 
 function compareDate<T extends Date_>(type: T, other?: DataType | null): other is T {
+    return (type === other) || (
+        compareConstructor(type, other) &&
+        type.unit === other.unit
+    );
+}
+
+function compareDuration<T extends Duration>(type: T, other?: DataType | null): other is T {
     return (type === other) || (
         compareConstructor(type, other) &&
         type.unit === other.unit
@@ -241,6 +254,11 @@ TypeComparator.prototype.visitFixedSizeBinary      = compareFixedSizeBinary;
 TypeComparator.prototype.visitDate                 =            compareDate;
 TypeComparator.prototype.visitDateDay              =            compareDate;
 TypeComparator.prototype.visitDateMillisecond      =            compareDate;
+TypeComparator.prototype.visitDuration             =        compareDuration;
+TypeComparator.prototype.visitDurationSecond       =        compareDuration;
+TypeComparator.prototype.visitDurationMillisecond  =        compareDuration;
+TypeComparator.prototype.visitDurationMicrosecond  =        compareDuration;
+TypeComparator.prototype.visitDurationNanosecond   =        compareDuration;
 TypeComparator.prototype.visitTimestamp            =       compareTimestamp;
 TypeComparator.prototype.visitTimestampSecond      =       compareTimestamp;
 TypeComparator.prototype.visitTimestampMillisecond =       compareTimestamp;

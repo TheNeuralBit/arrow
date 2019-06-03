@@ -25,7 +25,7 @@ import {
     Dictionary,
     Null, Int, Float,
     Binary, Bool, Utf8, Decimal,
-    Date_, Time, Timestamp, Interval,
+    Date_, Duration, Time, Timestamp, Interval,
     List, Struct, Union, FixedSizeBinary, FixedSizeList, Map_,
 } from './type';
 
@@ -183,6 +183,7 @@ export class Data<T extends DataType = DataType> {
             case Type.Bool:            return <unknown> Data.Bool(            <unknown> type as Bool,            offset, length, nullCount || 0, buffers[BufferType.VALIDITY], buffers[BufferType.DATA] || []) as Data<T>;
             case Type.Decimal:         return <unknown> Data.Decimal(         <unknown> type as Decimal,         offset, length, nullCount || 0, buffers[BufferType.VALIDITY], buffers[BufferType.DATA] || []) as Data<T>;
             case Type.Date:            return <unknown> Data.Date(            <unknown> type as Date_,           offset, length, nullCount || 0, buffers[BufferType.VALIDITY], buffers[BufferType.DATA] || []) as Data<T>;
+            case Type.Duration:        return <unknown> Data.Duration(        <unknown> type as Duration,        offset, length, nullCount || 0, buffers[BufferType.VALIDITY], buffers[BufferType.DATA] || []) as Data<T>;
             case Type.Time:            return <unknown> Data.Time(            <unknown> type as Time,            offset, length, nullCount || 0, buffers[BufferType.VALIDITY], buffers[BufferType.DATA] || []) as Data<T>;
             case Type.Timestamp:       return <unknown> Data.Timestamp(       <unknown> type as Timestamp,       offset, length, nullCount || 0, buffers[BufferType.VALIDITY], buffers[BufferType.DATA] || []) as Data<T>;
             case Type.Interval:        return <unknown> Data.Interval(        <unknown> type as Interval,        offset, length, nullCount || 0, buffers[BufferType.VALIDITY], buffers[BufferType.DATA] || []) as Data<T>;
@@ -224,6 +225,10 @@ export class Data<T extends DataType = DataType> {
     }
     /** @nocollapse */
     public static Date<T extends Date_>(type: T, offset: number, length: number, nullCount: number, nullBitmap: NullBuffer, data: DataBuffer<T>) {
+        return new Data(type, offset, length, nullCount, [undefined, toArrayBufferView(type.ArrayType, data), toUint8Array(nullBitmap)]);
+    }
+    /** @nocollapse */
+    public static Duration<T extends Duration>(type: T, offset: number, length: number, nullCount: number, nullBitmap: NullBuffer, data: DataBuffer<T>) {
         return new Data(type, offset, length, nullCount, [undefined, toArrayBufferView(type.ArrayType, data), toUint8Array(nullBitmap)]);
     }
     /** @nocollapse */

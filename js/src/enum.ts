@@ -27,6 +27,13 @@ export import IntervalUnit = Schema_.org.apache.arrow.flatbuf.IntervalUnit;
 export import MessageHeader = Message_.org.apache.arrow.flatbuf.MessageHeader;
 export import MetadataVersion = Schema_.org.apache.arrow.flatbuf.MetadataVersion;
 
+export enum VectorType {
+  OFFSET   = 0,  // used in List type, Dense Union and variable length primitive types (String, Binary)
+  DATA     = 1,  // actual data, either wixed width primitive types in slots or variable width delimited by an OFFSET vector
+  VALIDITY = 2,  // Bit vector indicating if each value is null
+  TYPE     = 3,  // Type vector used in Union type
+}
+
 /**
  * Main data type enumeration.
  *
@@ -72,6 +79,8 @@ export enum Type {
     Decimal         =  7,
     /** int32_t days or int64_t milliseconds since the UNIX epoch */
     Date            =  8,
+    /** TODO */
+    Duration        = 18,
     /** Time as signed 32 or 64-bit integer, representing either seconds, milliseconds, microseconds, or nanoseconds since midnight since midnight */
     Time            =  9,
     /** Exact timestamp encoded with int64 since UNIX epoch (Default unit millisecond) */
@@ -106,6 +115,10 @@ export enum Type {
     Float64               = -12,
     DateDay               = -13,
     DateMillisecond       = -14,
+    DurationSecond        = -27,
+    DurationMillisecond   = -28,
+    DurationMicrosecond   = -29,
+    DurationNanosecond    = -30,
     TimestampSecond       = -15,
     TimestampMillisecond  = -16,
     TimestampMicrosecond  = -17,

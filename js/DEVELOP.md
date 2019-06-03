@@ -78,15 +78,15 @@ Once generated, the flatbuffers format code needs to be adjusted for our build s
 
     cd ./js/src/format
 
-    # Delete Tensor_generated.js (skip this when we support Tensors)
-    rm ./Tensor_generated.ts
+    # Delete Tensor_generated.js and SparseTensor_generated.ts (skip this when we support Tensors)
+    rm ./Tensor_generated.ts ./SparseTensor_generated.ts
 
     # Remove "_generated" suffix from TS files
-    mv ./File_generated.ts .File.ts
-    mv ./Schema_generated.ts .Schema.ts
-    mv ./Message_generated.ts .Message.ts
+    mv ./File_generated.ts File.ts
+    mv ./Schema_generated.ts Schema.ts
+    mv ./Message_generated.ts Message.ts
     ```
-1. Remove Tensor import from `Schema.ts`
+1. Remove Tensor import and export from `Message.ts`
 1. Fix all the `flatbuffers` imports
     ```ts
     import { flatbuffers } from "./flatbuffers" // <-- change

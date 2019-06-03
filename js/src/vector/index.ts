@@ -24,6 +24,7 @@ export { Chunked } from './chunked';
 export { DateVector, DateDayVector, DateMillisecondVector } from './date';
 export { DecimalVector } from './decimal';
 export { DictionaryVector } from './dictionary';
+export { DurationVector, DurationSecondVector, DurationMillisecondVector, DurationMicrosecondVector, DurationNanosecondVector } from './duration';
 export { FixedSizeBinaryVector } from './fixedsizebinary';
 export { FixedSizeListVector } from './fixedsizelist';
 export { FloatVector, Float16Vector, Float32Vector, Float64Vector } from './float';
@@ -176,6 +177,30 @@ BaseVector.prototype[Symbol.iterator] = function baseVectorSymbolIterator<T exte
         VectorCtor.prototype['toArray'] = fn.partial0(toArrayVisitor.getVisitFn(typeId));
         VectorCtor.prototype['getByteWidth'] = partialType0(byteWidthVisitor.getVisitFn(typeId));
         VectorCtor.prototype[Symbol.iterator] = fn.partial0(iteratorVisitor.getVisitFn(typeId));
+        // TODO: remove this
+        /*
+        let typeIds: Type[];
+        switch (typeId) {
+            case Type.Int:       typeIds = [Type.Int8, Type.Int16, Type.Int32, Type.Int64, Type.Uint8, Type.Uint16, Type.Uint32, Type.Uint64]; break;
+            case Type.Float:     typeIds = [Type.Float16, Type.Float32, Type.Float64]; break;
+            case Type.Date:      typeIds = [Type.DateDay, Type.DateMillisecond]; break;
+            case Type.Duration:  typeIds = [Type.DurationSecond, Type.DurationMillisecond, Type.DurationMicrosecond, Type.DurationNanosecond]; break;
+            case Type.Time:      typeIds = [Type.TimeSecond, Type.TimeMillisecond, Type.TimeMicrosecond, Type.TimeNanosecond]; break;
+            case Type.Timestamp: typeIds = [Type.TimestampSecond, Type.TimestampMillisecond, Type.TimestampMicrosecond, Type.TimestampNanosecond]; break;
+            case Type.Interval:  typeIds = [Type.IntervalDayTime, Type.IntervalYearMonth]; break;
+            case Type.Union:     typeIds = [Type.DenseUnion, Type.SparseUnion]; break;
+            default:             typeIds = [typeId]; break;
+        }
+        typeIds.forEach((typeId) => {
+            const VectorCtor = getVectorConstructor.visit(typeId);
+            VectorCtor.prototype['get'] = partial1(getVisitor.getVisitFn(typeId));
+            VectorCtor.prototype['set'] = partial2(setVisitor.getVisitFn(typeId));
+            VectorCtor.prototype['indexOf'] = partial2(indexOfVisitor.getVisitFn(typeId));
+            VectorCtor.prototype['toArray'] = partial0(toArrayVisitor.getVisitFn(typeId));
+            VectorCtor.prototype['getByteWidth'] = partialType0(byteWidthVisitor.getVisitFn(typeId));
+            VectorCtor.prototype[Symbol.iterator] = partial0(iteratorVisitor.getVisitFn(typeId));
+        });
+        */
     });
 
 /** @ignore */

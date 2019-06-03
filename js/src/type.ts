@@ -69,6 +69,7 @@ export abstract class DataType<TType extends Type = Type, TChildren extends { [k
     /** @nocollapse */ static            isBool (x: any): x is Bool            { return x && x.typeId === Type.Bool;            }
     /** @nocollapse */ static         isDecimal (x: any): x is Decimal         { return x && x.typeId === Type.Decimal;         }
     /** @nocollapse */ static            isDate (x: any): x is Date_           { return x && x.typeId === Type.Date;            }
+    /** @nocollapse */ static        isDuration (x: any): x is Duration_       { return x && x.typeId === Type.Duration;        }
     /** @nocollapse */ static            isTime (x: any): x is Time_           { return x && x.typeId === Type.Time;            }
     /** @nocollapse */ static       isTimestamp (x: any): x is Timestamp_      { return x && x.typeId === Type.Timestamp;       }
     /** @nocollapse */ static        isInterval (x: any): x is Interval_       { return x && x.typeId === Type.Interval;        }
@@ -301,6 +302,29 @@ export class Date_<T extends Dates = Dates> extends DataType<T> {
 export class DateDay extends Date_<Type.DateDay> { constructor() { super(DateUnit.DAY); } }
 /** @ignore */
 export class DateMillisecond extends Date_<Type.DateMillisecond> { constructor() { super(DateUnit.MILLISECOND); } }
+
+/** @ignore */
+export type Durations = Type.Duration | Type.DurationSecond | Type.DurationMillisecond | Type.DurationMicrosecond | Type.DurationNanosecond ;
+interface Duration_<T extends Durations = Durations> extends DataType<T> { TArray: Int32Array; TValue: Int32Array; ArrayType: typeof Int32Array; }
+class Duration_<T extends Durations = Durations> extends DataType<T> {
+    constructor(public readonly unit: TimeUnit) {
+        super();
+    }
+    public get typeId() { return Type.Duration as T; }
+    public toString() { return `Duration<${TimeUnit[this.unit]}>`; }
+    protected static [Symbol.toStringTag] =  ((proto: Duration_) => {
+        (<any> proto).unit = null;
+        (<any> proto).ArrayType = Int32Array;
+        return proto[Symbol.toStringTag] = 'Duration';
+    })(Duration_.prototype);
+}
+
+export { Duration_ as Duration };
+
+export class DurationSecond extends Duration_<Type.DurationSecond> { constructor() { super(TimeUnit.SECOND); } }
+export class DurationMillisecond extends Duration_<Type.DurationMillisecond> { constructor() { super(TimeUnit.MILLISECOND); } }
+export class DurationMicrosecond extends Duration_<Type.DurationMicrosecond> { constructor() { super(TimeUnit.MICROSECOND); } }
+export class DurationNanosecond extends Duration_<Type.DurationNanosecond> { constructor() { super(TimeUnit.NANOSECOND); } }
 
 /** @ignore */
 type Times = Type.Time | Type.TimeSecond | Type.TimeMillisecond | Type.TimeMicrosecond | Type.TimeNanosecond;
@@ -591,6 +615,7 @@ export function strideForType(type: DataType) {
         case Type.Decimal: return 4;
         case Type.Timestamp: return 2;
         case Type.Date: return 1 + (t as Date_).unit;
+        case Type.Duration: return 2;
         case Type.Interval: return 1 + (t as Interval_).unit;
         case Type.Int: return 1 + +((t as Int_).bitWidth > 32);
         case Type.Time: return 1 + +((t as Time_).bitWidth > 32);

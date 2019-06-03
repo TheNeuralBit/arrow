@@ -24,6 +24,7 @@ import { VectorType, VectorCtor } from '../interfaces';
 import { BinaryVector } from '../vector/binary';
 import { BoolVector } from '../vector/bool';
 import { DateVector, DateDayVector, DateMillisecondVector } from '../vector/date';
+import { DurationVector, DurationSecondVector, DurationMillisecondVector, DurationMicrosecondVector, DurationNanosecondVector } from '../vector/duration';
 import { DecimalVector } from '../vector/decimal';
 import { DictionaryVector } from '../vector/dictionary';
 import { FixedSizeBinaryVector } from '../vector/fixedsizebinary';
@@ -71,6 +72,11 @@ export class GetVectorConstructor extends Visitor {
     public visitDate                 () { return DateVector; }
     public visitDateDay              () { return DateDayVector; }
     public visitDateMillisecond      () { return DateMillisecondVector; }
+    public visitDuration             () { return DurationVector; }
+    public visitDurationSecond       () { return DurationSecondVector; }
+    public visitDurationMillisecond  () { return DurationMillisecondVector; }
+    public visitDurationMicrosecond  () { return DurationMicrosecondVector; }
+    public visitDurationNanosecond   () { return DurationNanosecondVector; }
     public visitTimestamp            () { return TimestampVector; }
     public visitTimestampSecond      () { return TimestampSecondVector; }
     public visitTimestampMillisecond () { return TimestampMillisecondVector; }

@@ -24,7 +24,7 @@ import { Type, TimeUnit } from '../enum';
 import { Schema, Field } from '../schema';
 import {
     DataType, Dictionary,
-    Float, Int, Date_, Interval, Time, Timestamp,
+    Float, Int, Date_, Duration, Interval, Time, Timestamp,
     Bool, Null, Utf8, Binary, Decimal, FixedSizeBinary,
     List, FixedSizeList, Map_, Struct, Union,
 } from '../type';
@@ -50,6 +50,7 @@ export class ByteWidthVisitor extends Visitor {
     public visitBool            (____: Bool            ) { return 1 / 8; }
     public visitDecimal         (____: Decimal         ) { return 16; }
     public visitDate            (type: Date_           ) { return (type.unit + 1) * 4; }
+    public visitDuration        (____: Duration        ) { return 2; }
     public visitTime            (type: Time            ) { return type.bitWidth / 8; }
     public visitTimestamp       (type: Timestamp       ) { return type.unit === TimeUnit.SECOND ? 4 : 8; }
     public visitInterval        (type: Interval        ) { return (type.unit + 1) * 4; }

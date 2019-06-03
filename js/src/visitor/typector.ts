@@ -54,6 +54,11 @@ export class GetDataTypeConstructor extends Visitor {
     public visitDate                 () { return type.Date_; }
     public visitDateDay              () { return type.DateDay; }
     public visitDateMillisecond      () { return type.DateMillisecond; }
+    public visitDuration             () { return type.Duration; }
+    public visitDurationSecond       () { return type.DurationSecond; }
+    public visitDurationMillisecond  () { return type.DurationMillisecond; }
+    public visitDurationMicrosecond  () { return type.DurationMicrosecond; }
+    public visitDurationNanosecond   () { return type.DurationNanosecond; }
     public visitTimestamp            () { return type.Timestamp; }
     public visitTimestampSecond      () { return type.TimestampSecond; }
     public visitTimestampMillisecond () { return type.TimestampMillisecond; }

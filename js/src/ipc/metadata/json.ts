@@ -20,7 +20,7 @@ import {
     DataType, Dictionary, TimeBitWidth,
     Utf8, Binary, Decimal, FixedSizeBinary,
     List, FixedSizeList, Map_, Struct, Union,
-    Bool, Null, Int, Float, Date_, Time, Interval, Timestamp, IntBitWidth, Int32, TKeys,
+    Bool, Null, Int, Float, Date_, Duration, Time, Interval, Timestamp, IntBitWidth, Int32, TKeys,
 } from '../../type';
 
 import { DictionaryBatch, RecordBatch, FieldNode, BufferRegion } from './message';
@@ -174,6 +174,10 @@ function typeFromJSON(f: any, children?: Field[]): DataType<any> {
         case 'date': {
             const t = f['type'];
             return new Date_(DateUnit[t['unit']] as any);
+        }
+        case 'duration': {
+            const t = f['type'];
+            return new Duration(TimeUnit[t['unit']] as any);
         }
         case 'time': {
             const t = f['type'];

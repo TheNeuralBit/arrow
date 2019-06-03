@@ -59,6 +59,7 @@ export class VectorLoader extends Visitor {
     public visitBinary          <T extends type.Binary>          (type: T, { length, nullCount } = this.nextFieldNode()) { return          Data.Binary(type, 0, length, nullCount, this.readNullBitmap(type, nullCount), this.readOffsets(type), this.readData(type));                                   }
     public visitFixedSizeBinary <T extends type.FixedSizeBinary> (type: T, { length, nullCount } = this.nextFieldNode()) { return Data.FixedSizeBinary(type, 0, length, nullCount, this.readNullBitmap(type, nullCount), this.readData(type));                                                           }
     public visitDate            <T extends type.Date_>           (type: T, { length, nullCount } = this.nextFieldNode()) { return            Data.Date(type, 0, length, nullCount, this.readNullBitmap(type, nullCount), this.readData(type));                                                           }
+    public visitDuration        <T extends type.Duration>        (type: T, { length, nullCount } = this.nextFieldNode()) { return        Data.Duration(type, 0, length, nullCount, this.readNullBitmap(type, nullCount), this.readData(type));                                                           }
     public visitTimestamp       <T extends type.Timestamp>       (type: T, { length, nullCount } = this.nextFieldNode()) { return       Data.Timestamp(type, 0, length, nullCount, this.readNullBitmap(type, nullCount), this.readData(type));                                                           }
     public visitTime            <T extends type.Time>            (type: T, { length, nullCount } = this.nextFieldNode()) { return            Data.Time(type, 0, length, nullCount, this.readNullBitmap(type, nullCount), this.readData(type));                                                           }
     public visitDecimal         <T extends type.Decimal>         (type: T, { length, nullCount } = this.nextFieldNode()) { return         Data.Decimal(type, 0, length, nullCount, this.readNullBitmap(type, nullCount), this.readData(type));                                                           }
@@ -104,7 +105,7 @@ export class JSONVectorLoader extends VectorLoader {
         const { sources } = this;
         if (DataType.isTimestamp(type)) {
             return toArrayBufferView(Uint8Array, Int64.convertArray(sources[offset] as string[]));
-        } else if ((DataType.isInt(type) || DataType.isTime(type)) && type.bitWidth === 64) {
+        } else if ((DataType.isInt(type) || DataType.isTime(type)) && type.bitWidth === 64 || DataType.isDuration(type)) {
             return toArrayBufferView(Uint8Array, Int64.convertArray(sources[offset] as string[]));
         } else if (DataType.isDate(type) && type.unit === DateUnit.MILLISECOND) {
             return toArrayBufferView(Uint8Array, Int64.convertArray(sources[offset] as string[]));

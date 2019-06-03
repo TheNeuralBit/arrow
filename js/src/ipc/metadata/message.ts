@@ -46,7 +46,7 @@ import {
     DataType, Dictionary, TimeBitWidth,
     Utf8, Binary, Decimal, FixedSizeBinary,
     List, FixedSizeList, Map_, Struct, Union,
-    Bool, Null, Int, Float, Date_, Time, Interval, Timestamp, IntBitWidth, Int32, TKeys,
+    Bool, Null, Int, Float, Date_, Duration, Time, Interval, Timestamp, IntBitWidth, Int32, TKeys,
 } from '../../type';
 
 /**
@@ -444,6 +444,10 @@ function decodeFieldType(f: _Field, children?: Field[]): DataType<any> {
         case Type.Date: {
             const t = f.type(new Schema_.org.apache.arrow.flatbuf.Date())!;
             return new Date_(t.unit());
+        }
+        case Type.Duration: {
+            const t = f.type(new Schema_.org.apache.arrow.flatbuf.Duration())!;
+            return new Duration(t.unit());
         }
         case Type.Time: {
             const t = f.type(new Schema_.org.apache.arrow.flatbuf.Time())!;

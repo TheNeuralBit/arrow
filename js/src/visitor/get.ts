@@ -27,6 +27,7 @@ import {
     Float, Float16, Float32, Float64,
     Int, Uint8, Uint16, Uint32, Uint64, Int8, Int16, Int32, Int64,
     Date_, DateDay, DateMillisecond,
+    Duration, DurationSecond, DurationMillisecond, DurationMicrosecond, DurationNanosecond,
     Interval, IntervalDayTime, IntervalYearMonth,
     Time, TimeSecond, TimeMillisecond, TimeMicrosecond, TimeNanosecond,
     Timestamp, TimestampSecond, TimestampMillisecond, TimestampMicrosecond, TimestampNanosecond,
@@ -162,6 +163,25 @@ const getDate = <T extends Date_> (vector: VectorType<T>, index: number): T['TVa
 );
 
 /** @ignore */
+const getDurationSecond       = <T extends DurationSecond>     ({ values }: VectorType<T>, index: number): T['TValue'] => BN.new(values.subarray(2 * index, 2 * (index + 1)), true);
+/** @ignore */
+const getDurationMillisecond  = <T extends DurationMillisecond>({ values }: VectorType<T>, index: number): T['TValue'] => BN.new(values.subarray(2 * index, 2 * (index + 1)), true);
+/** @ignore */
+const getDurationMicrosecond  = <T extends DurationMicrosecond>({ values }: VectorType<T>, index: number): T['TValue'] => BN.new(values.subarray(2 * index, 2 * (index + 1)), true);
+/** @ignore */
+const getDurationNanosecond   = <T extends DurationNanosecond> ({ values }: VectorType<T>, index: number): T['TValue'] => BN.new(values.subarray(2 * index, 2 * (index + 1)), true);
+/* istanbul ignore next */
+/** @ignore */
+const getDuration            = <T extends Duration>(vector: VectorType<T>, index: number): T['TValue'] => {
+    switch (vector.type.unit) {
+        case TimeUnit.SECOND:      return      getDurationSecond(vector as VectorType<DurationSecond>, index);
+        case TimeUnit.MILLISECOND: return getDurationMillisecond(vector as VectorType<DurationMillisecond>, index);
+        case TimeUnit.MICROSECOND: return getDurationMicrosecond(vector as VectorType<DurationMicrosecond>, index);
+        case TimeUnit.NANOSECOND:  return  getDurationNanosecond(vector as VectorType<DurationNanosecond>, index);
+    }
+};
+
+/** @ignore */
 const getTimestampSecond      = <T extends TimestampSecond>     ({ values }: VectorType<T>, index: number): T['TValue'] => 1000 * epochMillisecondsLongToMs(values, index * 2);
 /** @ignore */
 const getTimestampMillisecond = <T extends TimestampMillisecond>({ values }: VectorType<T>, index: number): T['TValue'] => epochMillisecondsLongToMs(values, index * 2);
@@ -291,6 +311,11 @@ GetVisitor.prototype.visitFixedSizeBinary      =      getFixedSizeBinary;
 GetVisitor.prototype.visitDate                 =                 getDate;
 GetVisitor.prototype.visitDateDay              =              getDateDay;
 GetVisitor.prototype.visitDateMillisecond      =      getDateMillisecond;
+GetVisitor.prototype.visitDuration             =             getDuration;
+GetVisitor.prototype.visitDurationSecond       =       getDurationSecond;
+GetVisitor.prototype.visitDurationMillisecond  =  getDurationMillisecond;
+GetVisitor.prototype.visitDurationMicrosecond  =  getDurationMicrosecond;
+GetVisitor.prototype.visitDurationNanosecond   =   getDurationNanosecond;
 GetVisitor.prototype.visitTimestamp            =            getTimestamp;
 GetVisitor.prototype.visitTimestampSecond      =      getTimestampSecond;
 GetVisitor.prototype.visitTimestampMillisecond = getTimestampMillisecond;

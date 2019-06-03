@@ -53,6 +53,9 @@ export class JSONTypeAssembler extends Visitor {
     public visitDate<T extends type.Date_>({ typeId, unit }: T) {
         return { 'name': ArrowType[typeId].toLowerCase(), 'unit': DateUnit[unit] };
     }
+    public visitDuration<T extends type.Duration>({ typeId, unit }: T) {
+        return { 'name': ArrowType[typeId].toLowerCase(), 'unit': TimeUnit[unit] };
+    }
     public visitTime<T extends type.Time>({ typeId, unit, bitWidth }: T) {
         return { 'name': ArrowType[typeId].toLowerCase(), 'unit': TimeUnit[unit], bitWidth };
     }

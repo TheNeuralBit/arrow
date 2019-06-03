@@ -18,7 +18,7 @@
 import { Data } from './data';
 import { Vector } from './vector';
 import { Type, Precision, DateUnit, TimeUnit, IntervalUnit, UnionMode } from './enum';
-import { DataType, Float, Int, Date_, Interval, Time, Timestamp, Union, } from './type';
+import { DataType, Float, Int, Date_, Duration, Interval, Time, Timestamp, Union, } from './type';
 
 export abstract class Visitor {
     public visitMany(nodes: any[], ...args: any[][]) {
@@ -38,6 +38,7 @@ export abstract class Visitor {
     public visitBinary          (_node: any, ..._args: any[]): any { return null; }
     public visitFixedSizeBinary (_node: any, ..._args: any[]): any { return null; }
     public visitDate            (_node: any, ..._args: any[]): any { return null; }
+    public visitDuration        (_node: any, ..._args: any[]): any { return null; }
     public visitTimestamp       (_node: any, ..._args: any[]): any { return null; }
     public visitTime            (_node: any, ..._args: any[]): any { return null; }
     public visitDecimal         (_node: any, ..._args: any[]): any { return null; }
@@ -82,6 +83,11 @@ function getVisitFn<T extends DataType>(visitor: Visitor, node: any, throwIfNotF
         case Type.Date:                 fn = visitor.visitDate; break;
         case Type.DateDay:              fn = visitor.visitDateDay || visitor.visitDate; break;
         case Type.DateMillisecond:      fn = visitor.visitDateMillisecond || visitor.visitDate; break;
+        case Type.Duration:             fn = visitor.visitDuration; break;
+        case Type.DurationSecond:       fn = visitor.visitDurationSecond || visitor.visitDuration; break;
+        case Type.DurationMillisecond:  fn = visitor.visitDurationMillisecond || visitor.visitDuration; break;
+        case Type.DurationMicrosecond:  fn = visitor.visitDurationMicrosecond || visitor.visitDuration; break;
+        case Type.DurationNanosecond:   fn = visitor.visitDurationNanosecond || visitor.visitDuration; break;
         case Type.Timestamp:            fn = visitor.visitTimestamp; break;
         case Type.TimestampSecond:      fn = visitor.visitTimestampSecond || visitor.visitTimestamp; break;
         case Type.TimestampMillisecond: fn = visitor.visitTimestampMillisecond || visitor.visitTimestamp; break;
@@ -150,6 +156,14 @@ function inferDType<T extends DataType>(type: T): Type {
                 case TimeUnit.NANOSECOND: return Type.TimestampNanosecond;
             }
             return Type.Timestamp;
+        case Type.Duration:
+            switch ((type as any as Duration).unit) {
+                case TimeUnit.SECOND: return Type.DurationSecond;
+                case TimeUnit.MILLISECOND: return Type.DurationMillisecond;
+                case TimeUnit.MICROSECOND: return Type.DurationMicrosecond;
+                case TimeUnit.NANOSECOND: return Type.DurationNanosecond;
+            }
+            return Type.Duration;
         case Type.Date:
             switch ((type as any as Date_).unit) {
                 case DateUnit.DAY: return Type.DateDay;
@@ -200,6 +214,11 @@ export interface Visitor {
     visitDate                  (node: any, ...args: any[]): any;
     visitDateDay?              (node: any, ...args: any[]): any;
     visitDateMillisecond?      (node: any, ...args: any[]): any;
+    visitDuration              (node: any, ...args: any[]): any;
+    visitDurationSecond?       (node: any, ...args: any[]): any;
+    visitDurationMillisecond?  (node: any, ...args: any[]): any;
+    visitDurationMicrosecond?  (node: any, ...args: any[]): any;
+    visitDurationNanosecond?   (node: any, ...args: any[]): any;
     visitTimestamp             (node: any, ...args: any[]): any;
     visitTimestampSecond?      (node: any, ...args: any[]): any;
     visitTimestampMillisecond? (node: any, ...args: any[]): any;
@@ -239,6 +258,10 @@ export interface Visitor {
 (Visitor.prototype as any).visitFloat64 = null;
 (Visitor.prototype as any).visitDateDay = null;
 (Visitor.prototype as any).visitDateMillisecond = null;
+(Visitor.prototype as any).visitDurationSecond = null;
+(Visitor.prototype as any).visitDurationMillisecond = null;
+(Visitor.prototype as any).visitDurationMicrosecond = null;
+(Visitor.prototype as any).visitDurationNanosecond = null;
 (Visitor.prototype as any).visitTimestampSecond = null;
 (Visitor.prototype as any).visitTimestampMillisecond = null;
 (Visitor.prototype as any).visitTimestampMicrosecond = null;

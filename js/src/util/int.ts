@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { IterableArrayLike } from '../type';
+
 /** @ignore */
 const carryBit16 = 1 << 16;
 
@@ -254,7 +256,7 @@ export class Int64 extends BaseInt64 {
     }
 
     /** @nocollapse */
-    public static convertArray(values: (string|number)[]): Uint32Array {
+    public static convertArray(values: IterableArrayLike<string|number>): Uint32Array {
         const data = new Uint32Array(values.length * 2);
         for (let i = -1, n = values.length; ++i < n;) {
             Int64.from(values[i], new Uint32Array(data.buffer, data.byteOffset + 2 * i * 4, 2));
