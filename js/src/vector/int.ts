@@ -18,6 +18,7 @@
 import { Data } from '../data';
 import { Vector } from '../vector';
 import { BaseVector } from './base';
+import { vectorFromValuesWithType } from './index';
 import { VectorType as V } from '../interfaces';
 import { Int, Uint8, Uint16, Uint32, Uint64, Int8, Int16, Int32, Int64 } from '../type';
 import {
@@ -37,8 +38,8 @@ export class IntVector<T extends Int = Int> extends BaseVector<T> {
     public static from(this: typeof IntVector, data: Uint32Array): Uint32Vector;
 
     // @ts-ignore
-    public static from(this: typeof IntVector, data: Int32Array, is64: true): Int64Vector;
-    public static from(this: typeof IntVector, data: Uint32Array, is64: true): Uint64Vector;
+    public static from(this: typeof IntVector, data: Int32Array): Int64Vector;
+    public static from(this: typeof IntVector, data: Uint32Array): Uint64Vector;
     public static from<T extends Int>(this: typeof IntVector, data: T['TArray']): V<T>;
 
     public static from(this: typeof Int8Vector,   data: Int8['TArray']   | Iterable<number>): Int8Vector;
@@ -51,36 +52,60 @@ export class IntVector<T extends Int = Int> extends BaseVector<T> {
     public static from(this: typeof Uint64Vector, data: Uint32['TArray'] | Iterable<number>): Uint64Vector;
 
     /** @nocollapse */
-    public static from<T extends Int>(data: T['TArray'], is64?: boolean) {
-        let length: number = 0;
-        let type: Int | null = null;
+    public static from<T extends Int>(input: T['TArray']) {
+        let type: Int | null;
         switch (this) {
-            case Int8Vector:   data = toInt8Array(data);   is64 = false; break;
-            case Int16Vector:  data = toInt16Array(data);  is64 = false; break;
-            case Int32Vector:  data = toInt32Array(data);  is64 = false; break;
-            case Int64Vector:  data = toInt32Array(data);  is64 =  true; break;
-            case Uint8Vector:  data = toUint8Array(data);  is64 = false; break;
-            case Uint16Vector: data = toUint16Array(data); is64 = false; break;
-            case Uint32Vector: data = toUint32Array(data); is64 = false; break;
-            case Uint64Vector: data = toUint32Array(data); is64 =  true; break;
+            case Int8Vector:   type = new Int8();   break;
+            case Int16Vector:  type = new Int16();  break;
+            case Int32Vector:  type = new Int32();  break;
+            case Int64Vector:  type = new Int64();  break;
+            case Uint8Vector:  type = new Uint8();  break;
+            case Uint16Vector: type = new Uint16(); break;
+            case Uint32Vector: type = new Uint32(); break;
+            case Uint64Vector: type = new Uint64(); break;
+            case IntVector:
+            default:
+                type = null;
         }
-        if (is64 === true) {
-            length = data.length * 0.5;
-            type = data instanceof Int32Array ? new Int64() : new Uint64();
+        let input_type: Int | null;
+        switch (input.constructor) {
+            case Int8Array:   input_type = new Int8();   break;
+            case Int16Array:  input_type = new Int16();  break;
+            case Int32Array:  input_type = new Int32();  break;
+            case Uint8Array:  input_type = new Uint8();  break;
+            case Uint16Array: input_type = new Uint16(); break;
+            case Uint32Array: input_type = new Uint32(); break;
+            default:          input_type = null;
+        }
+
+        let output_type: Int;
+        if (type !== null) {
+            output_type = type;
+        } else if (input_type !== null) {
+            output_type = input_type;
         } else {
-            length = data.length;
-            switch (data.constructor) {
-                case Int8Array:   type = new Int8();   break;
-                case Int16Array:  type = new Int16();  break;
-                case Int32Array:  type = new Int32();  break;
-                case Uint8Array:  type = new Uint8();  break;
-                case Uint16Array: type = new Uint16(); break;
-                case Uint32Array: type = new Uint32(); break;
-            }
+            throw new TypeError("IntVector.from output type cannot be inferred. Try using a type specialization like Int32Vector.from, or calling IntVector.from with a TypedArray instance.");
         }
-        return type !== null
-            ? Vector.new(Data.Int(type, 0, length, 0, null, data))
-            : (() => { throw new TypeError('Unrecognized IntVector input'); })();
+
+        const input_type_matches_output: boolean = (output_type != null && input_type != null && output_type.compareTo(input_type));
+        // If the input is an ArrayBuffer or a TypedArray of the same type as
+        // the output, create a vector referencing it (zero-copy).
+        if (input instanceof ArrayBuffer || input_type_matches_output) {
+            switch (this) {
+                case IntVector:
+                    throw new TypeError("IntVector.from cannot be called with ArrayBuffer. Try using a type specialization like Int32Vector.from instead.");
+                case Int8Vector:   input = toInt8Array(input);   break;
+                case Int16Vector:  input = toInt16Array(input);  break;
+                case Int32Vector:  input = toInt32Array(input);  break;
+                case Int64Vector:  input = toInt32Array(input);  break;
+                case Uint8Vector:  input = toUint8Array(input);  break;
+                case Uint16Vector: input = toUint16Array(input); break;
+                case Uint32Vector: input = toUint32Array(input); break;
+                case Uint64Vector: input = toUint32Array(input); break;
+            }
+            return Vector.new(Data.Int(type!, 0, input.length, 0, null, input))
+        }
+        return vectorFromValuesWithType(() => output_type, input);
     }
 }
 

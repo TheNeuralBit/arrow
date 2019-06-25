@@ -338,7 +338,8 @@ function gets_expected_values<T extends Int | Float>(vector: Vector<T>, typed: T
             } else {
                 const vector64 = vector as Vector<Int64 | Uint64>;
                 const ArrayType = (vector as Vector<Int64 | Uint64>).ArrayType;
-                const i64 = () => new ArrayType(values.slice(stride * i, stride * (i + 1)));
+                //const i64 = () => new ArrayType(values.slice(stride * i, stride * (i + 1)));
+                const i64 = () => new ArrayType([values[i], 0]);
                 while (++i < n) {
                     expect((vector64.get(i) as any).subarray(0, stride)).toEqual(i64());
                 }
