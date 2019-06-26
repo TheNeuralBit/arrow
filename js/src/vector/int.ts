@@ -91,19 +91,17 @@ export class IntVector<T extends Int = Int> extends BaseVector<T> {
         // If the input is an ArrayBuffer or a TypedArray of the same type as
         // the output, create a vector referencing it (zero-copy).
         if (input instanceof ArrayBuffer || input_type_matches_output) {
-            switch (this) {
-                case IntVector:
-                    throw new TypeError("IntVector.from cannot be called with ArrayBuffer. Try using a type specialization like Int32Vector.from instead.");
-                case Int8Vector:   input = toInt8Array(input);   break;
-                case Int16Vector:  input = toInt16Array(input);  break;
-                case Int32Vector:  input = toInt32Array(input);  break;
-                case Int64Vector:  input = toInt32Array(input);  break;
-                case Uint8Vector:  input = toUint8Array(input);  break;
-                case Uint16Vector: input = toUint16Array(input); break;
-                case Uint32Vector: input = toUint32Array(input); break;
-                case Uint64Vector: input = toUint32Array(input); break;
+            switch (output_type.constructor) {
+                case Int8:   input = toInt8Array(input);   break;
+                case Int16:  input = toInt16Array(input);  break;
+                case Int32:  input = toInt32Array(input);  break;
+                case Int64:  input = toInt32Array(input);  break;
+                case Uint8:  input = toUint8Array(input);  break;
+                case Uint16: input = toUint16Array(input); break;
+                case Uint32: input = toUint32Array(input); break;
+                case Uint64: input = toUint32Array(input); break;
             }
-            return Vector.new(Data.Int(type!, 0, input.length, 0, null, input))
+            return Vector.new(Data.Int(output_type, 0, input.length, 0, null, input))
         }
         return vectorFromValuesWithType(() => output_type, input);
     }
