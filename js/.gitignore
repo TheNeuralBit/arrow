@@ -79,7 +79,7 @@ yarn.lock
 .env
 
 # compilation targets
-doc
+#doc
 dist
 targets
 
